@@ -1,0 +1,35 @@
+name: 1 - Test ipynb
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+  
+jobs:
+  ipynb_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup Python 3.10
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
+      - name: Install requirements
+        run: pip install -r requirements.txt
+      - name: Jupyter Notebook Execution
+        env: 
+          AV_API_KEY: ${{ secrets.AV_API_KEY }}
+        run: |
+          jupyter nbconvert --to notebook --execute forex.ipynb --ExecutePreprocessor.kernel_name='python3' --output forex_actual
+          echo "ls"
+          ls
+          echo "ls ../"
+          ls ../
+        shell: bash 
+      - name: commit updated notebook
+        uses: EndBug/add-and-commit@v7
+        with:
+          author_name: Update bot
+          message: "Update Notebook"
+          add: "forex_actual.ipynb"
